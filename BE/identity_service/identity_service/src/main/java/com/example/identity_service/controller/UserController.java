@@ -1,18 +1,15 @@
 package com.example.identity_service.controller;
 
 import com.example.identity_service.dto.reponse.UserResponse;
-import com.example.identity_service.dto.request.ApiResponse;
-import com.example.identity_service.dto.request.ChangePassRequest;
-import com.example.identity_service.dto.request.UserCreationRequest;
-import com.example.identity_service.dto.request.UserUpdateRequest;
-import com.example.identity_service.entity.User;
+import com.example.identity_service.dto.request.*;
 import com.example.identity_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,14 +34,22 @@ public class UserController {
     }
 
     @GetMapping
-    ApiResponse<List<UserResponse>> getUsers(){
+    ApiResponse<List<UserResponse>> getUsers( @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size ){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
+        Pageable pageable = PageRequest.of(page, size);
 
         log.info("Username: {}" , authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
         return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUser()).build();
+                .result(userService.getUser(pageable)).build();
+    }
+
+    @GetMapping("/total")
+    ApiResponse<Long> getTotalUser( ){
+        return ApiResponse.<Long>builder()
+                .result(userService.getTotalUser()).build();
     }
 
     @GetMapping("/{userId}")
@@ -78,6 +83,18 @@ public class UserController {
     ApiResponse<UserResponse> changeUserPassword(@PathVariable String userId, @RequestBody ChangePassRequest request){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.changePassword(userId, request))
+                .build();
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<UserResponse>> searchUsers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String role) {
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.searchUsers(username, email, phone, status, role))
                 .build();
     }
 }

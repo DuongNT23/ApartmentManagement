@@ -8,11 +8,12 @@ spring:
     url: "jdbc:mysql://localhost:9000/Apartment_Management"
     username: root
     password: duong123
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: true
 jwt:
   signerKey: "U5IeSrMYMWbhjirxzw/OeuPWRgdWPSGueiQVa8Bn5+VSxDx0vDvH0l4fsl1p2EOk"
-  valid-duration: 1 #second
-  refreshable-duration: 2 #second
+  valid-duration: 1 #days
+  refreshable-duration: 2 #days

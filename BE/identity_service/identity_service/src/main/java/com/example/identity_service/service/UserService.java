@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,16 +55,15 @@ public class UserService {
             request.setStatus(Status.ACTIVE);
 
             User user = userMapper.toUser(request);
-            user.setId("test");
 
             return userMapper.toUserResponse(userRepository.save(user));
     }
 
 //    @PreAuthorize("hasRole('ADMIN')") //có role admin mới vào hàm này
 //    @PreAuthorize("hasRole('Admin')")
-    public List<UserResponse> getUser(){
+    public List<UserResponse> getUser(Pageable pageable){
         log.info("In method get Users");
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+        return userRepository.findAll(pageable).stream().map(userMapper::toUserResponse).toList();
     }
 
     public UserResponse getMyInfo(){
@@ -72,7 +72,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
-    @PostAuthorize("returnObject.username == authentication.name") //in charge sau khi method done
+//    @PostAuthorize("returnObject.username == authentication.name") //in charge sau khi method done
     public UserResponse getUser(String id){
         log.info("In method get user by id");
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
@@ -88,6 +88,7 @@ public class UserService {
         user.setDob(request.getDob());
         user.setGender(request.getGender());
         user.setPhone(request.getPhone());
+//        (request)
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -106,6 +107,15 @@ public class UserService {
 
     public void deleteUser(String userId){
         userRepository.deleteById(userId);
+    }
+
+    public List<UserResponse> searchUsers(String username, String email, String phone, String status, String role) {
+        int roleId = Integer.parseInt(role);
+        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    }
+
+    public Long getTotalUser() {
+        return userRepository.count();
     }
 }
 
