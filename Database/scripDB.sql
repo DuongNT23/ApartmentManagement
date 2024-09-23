@@ -6,8 +6,9 @@ CREATE TABLE Apartments (
     building_name VARCHAR(255) NOT NULL,
     unit_number VARCHAR(50) NOT NULL,
     area DECIMAL(5,2) NOT NULL,
+    floor int NOT NULL,
     num_rooms INT NOT NULL,
-    status ENUM('occupied', 'vacant', 'under_maintenance') DEFAULT 'vacant',
+    status ENUM('occupied', 'vacant', 'under_maintenance', 'rented') DEFAULT 'vacant',
     note NVARCHAR(10000)
 );
 

@@ -1,6 +1,7 @@
 package com.example.identity_service.dto.request;
 
 import com.example.identity_service.entity.Role;
+import com.example.identity_service.enums.Status;
 import com.example.identity_service.validator.DobContraints;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -26,6 +27,6 @@ public class UserUpdateRequest {
     @DobContraints(min = 18, message = "DOB_INVALID")
     LocalDate dob;
     Boolean gender;
-//    Role role;
-//    String status;
+    Role role;
+    Status status;
 }

@@ -70,5 +70,7 @@ public class UserMapperImpl implements UserMapper {
         user.setPhone( request.getPhone() );
         user.setDob( request.getDob() );
         user.setGender( request.getGender() );
+        user.setRole( request.getRole() );
+        user.setStatus( request.getStatus() );
     }
 }
