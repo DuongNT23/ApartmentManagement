@@ -22,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -110,8 +111,14 @@ public class UserService {
     }
 
     public List<UserResponse> searchUsers(String username, String email, String phone, String status, String role) {
-        int roleId = Integer.parseInt(role);
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+        int roleId;
+        if(!role.isEmpty()){
+            roleId = Integer.parseInt(role);
+            return userRepository.findUsers(username, email, status, roleId).stream().map(userMapper::toUserResponse).toList();
+        }else{
+            return userRepository.findUsers(username, email, status, null).stream().map(userMapper::toUserResponse).toList();
+        }
+
     }
 
     public Long getTotalUser() {

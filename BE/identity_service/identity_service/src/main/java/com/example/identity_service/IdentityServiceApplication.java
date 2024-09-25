@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.example.identity_service")
 @EnableJpaAuditing
 public class IdentityServiceApplication {
 

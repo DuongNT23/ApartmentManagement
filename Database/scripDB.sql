@@ -1,11 +1,11 @@
 CREATE DATABASE IF NOT EXISTS Apartment_Management;
 USE Apartment_Management;
 
-CREATE TABLE Apartments (
+CREATE TABLE apartments (
     apartment_id varchar(255) PRIMARY KEY,
     building_name VARCHAR(255) NOT NULL,
     unit_number VARCHAR(50) NOT NULL,
-    area DECIMAL(5,2) NOT NULL,
+    area FLOAT NOT NULL,
     floor int NOT NULL,
     num_rooms INT NOT NULL,
     status ENUM('occupied', 'vacant', 'under_maintenance', 'rented') DEFAULT 'vacant',
