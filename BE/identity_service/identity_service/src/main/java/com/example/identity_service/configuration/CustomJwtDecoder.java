@@ -30,11 +30,15 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.jose.JOSEException;
 
 @Component
-@RequiredArgsConstructor
 public class CustomJwtDecoder implements JwtDecoder {
     @Value("${jwt.signerKey}")
     private String signerKey;
-    InvalidatedTokenRepository invalidatedTokenRepository;
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
+
+    @Autowired
+    public CustomJwtDecoder(InvalidatedTokenRepository invalidatedTokenRepository) {
+        this.invalidatedTokenRepository = invalidatedTokenRepository;
+    }
 
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 

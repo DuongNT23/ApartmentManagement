@@ -1,5 +1,9 @@
 package com.example.identity_service.mapper;
 
+import com.example.identity_service.dto.reponse.ApartmentResponse;
+import com.example.identity_service.dto.request.ApartmentCreationRequest;
+import com.example.identity_service.dto.request.ApartmentUpdateRequest;
+import com.example.identity_service.entity.Apartment;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +25,8 @@ public class ApartmentMapperImpl implements ApartmentMapper {
         apartment.buildingName( request.getBuildingName() );
         apartment.unitNumber( request.getUnitNumber() );
         apartment.area( request.getArea() );
-        if ( request.getFloor() != null ) {
-            apartment.floor( request.getFloor() );
-        }
-        if ( request.getNumRooms() != null ) {
-            apartment.numRooms( request.getNumRooms() );
-        }
+        apartment.floor( request.getFloor() );
+        apartment.numRoom( request.getNumRoom() );
         apartment.status( request.getStatus() );
         apartment.note( request.getNote() );
 
@@ -41,14 +41,29 @@ public class ApartmentMapperImpl implements ApartmentMapper {
 
         ApartmentResponse.ApartmentResponseBuilder apartmentResponse = ApartmentResponse.builder();
 
+        apartmentResponse.apartmentId( apartment.getApartmentId() );
         apartmentResponse.buildingName( apartment.getBuildingName() );
         apartmentResponse.unitNumber( apartment.getUnitNumber() );
         apartmentResponse.area( apartment.getArea() );
         apartmentResponse.floor( apartment.getFloor() );
-        apartmentResponse.numRooms( apartment.getNumRooms() );
+        apartmentResponse.numRoom( apartment.getNumRoom() );
         apartmentResponse.status( apartment.getStatus() );
         apartmentResponse.note( apartment.getNote() );
 
         return apartmentResponse.build();
+    }
+
+    @Override
+    public void updateApartment(Apartment apartment, ApartmentUpdateRequest request) {
+        if ( request == null ) {
+            return;
+        }
+
+        apartment.setBuildingName( request.getBuildingName() );
+        apartment.setArea( request.getArea() );
+        apartment.setFloor( request.getFloor() );
+        apartment.setNumRoom( request.getNumRoom() );
+        apartment.setStatus( request.getStatus() );
+        apartment.setNote( request.getNote() );
     }
 }

@@ -20,6 +20,8 @@ public enum ErrorCode {
     EMAIL_EXISTED (1010, "Username existed", HttpStatus.BAD_REQUEST ),
     PHONE_EXISTED (1011, "Username existed", HttpStatus.BAD_REQUEST ),
     OLD_PASSWORD_INVALID (1012, "Your current password is invalid", HttpStatus.BAD_REQUEST),
+    UNIT_NUMBER_EXISTED (1011, "Unit number existed", HttpStatus.BAD_REQUEST ),
+    APARTMENT_NOT_EXISTED (1011, "Apartment not existed", HttpStatus.BAD_REQUEST ),
     ;
     private int code;
     private String messgae;
