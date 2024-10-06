@@ -128,5 +128,9 @@ public class UserService {
     public List<String> getAllUsername(){
         return userRepository.findAllUsername();
     }
+
+    public UserResponse getUserById(String userId) {
+        return userMapper.toUserResponse(userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    }
 }
 
