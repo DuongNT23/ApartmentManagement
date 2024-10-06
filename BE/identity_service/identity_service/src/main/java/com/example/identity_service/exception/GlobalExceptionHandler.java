@@ -18,15 +18,15 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
     private static final String MIN_ATTRIBUTE = "min";
 
-    @ExceptionHandler(value = Exception.class) //everywhere that has runtime exception
-    ResponseEntity<ApiResponse> handlingRuntimeException(Exception exception){
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setCode(ErrorCode.UNCATEGORIED_EXCEPTION.getCode());
-        apiResponse.setMessage(ErrorCode.UNCATEGORIED_EXCEPTION.getMessgae());
-
-//        return ResponseEntity.badRequest().body(exception.getMessage());
-        return ResponseEntity.badRequest().body(apiResponse);
-    }
+//    @ExceptionHandler(value = Exception.class) //everywhere that has runtime exception
+//    ResponseEntity<ApiResponse> handlingRuntimeException(Exception exception){
+//        ApiResponse apiResponse = new ApiResponse();
+//        apiResponse.setCode(ErrorCode.UNCATEGORIED_EXCEPTION.getCode());
+//        apiResponse.setMessage(ErrorCode.UNCATEGORIED_EXCEPTION.getMessgae());
+//
+////        return ResponseEntity.badRequest().body(exception.getMessage());
+//        return ResponseEntity.badRequest().body(apiResponse);
+//    }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidationException(MethodArgumentNotValidException exception){

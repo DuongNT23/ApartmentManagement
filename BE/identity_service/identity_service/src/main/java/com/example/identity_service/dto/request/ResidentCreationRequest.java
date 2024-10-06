@@ -1,28 +1,24 @@
 package com.example.identity_service.dto.request;
 
-import com.example.identity_service.entity.Apartment;
-import com.example.identity_service.enums.ApartmentStatus;
-import com.example.identity_service.enums.BillType;
-import com.example.identity_service.enums.PaymentStatus;
-import jakarta.persistence.*;
+import com.example.identity_service.enums.ResidentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BillCreationRequest {
-    String apartmentId;
-    BillType billType;
-    float usageAmount;
-    float totalAmount;
-    LocalDate createdDate;
-    LocalDate dueDate;
-    PaymentStatus paymentStatus;
-    String note;
+public class ResidentCreationRequest {
+    String name;
+    String email;
+    String phone;
+    String idCard;
+    LocalDate dob;
+    Boolean gender;
+    ResidentStatus status;
+    String apartmentUnitNum;
+    String username;
 }

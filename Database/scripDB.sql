@@ -38,7 +38,7 @@ CREATE TABLE Residents (
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     id_card VARCHAR(50),
-    birth_year INT,
+    birth_year DATE,
     gender VARCHAR(10),
     status ENUM('current', 'former', 'temporary_absent') DEFAULT 'current'
 );
@@ -59,10 +59,10 @@ CREATE TABLE Contracts (
 
 CREATE TABLE Billing (
     billing_id varchar(255) PRIMARY KEY,
-    apartment_id varchar(255),
-    bill_type ENUM('electricity', 'water', 'service', 'parking'),
-    usage_amount DECIMAL(8,2) NOT NULL,
-    total_amount DECIMAL(10,2),
+    apartment_id varchar(255) NOT NULL,
+    bill_type ENUM('Electricity', 'Water', 'Service', 'Parking') DEFAULT 'Electicity',
+    usage_amount FLOAT NOT NULL,
+    total_amount FLOAT,
     created_date DATE,
     due_date DATE,
     payment_status ENUM('unpaid', 'paid', 'overdue') DEFAULT 'unpaid',

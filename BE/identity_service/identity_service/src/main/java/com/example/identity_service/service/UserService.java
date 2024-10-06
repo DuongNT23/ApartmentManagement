@@ -124,5 +124,9 @@ public class UserService {
     public Long getTotalUser() {
         return userRepository.count();
     }
+
+    public List<String> getAllUsername(){
+        return userRepository.findAllUsername();
+    }
 }
 

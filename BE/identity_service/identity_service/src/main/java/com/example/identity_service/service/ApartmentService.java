@@ -40,7 +40,7 @@ public class ApartmentService {
 
     public List<ApartmentResponse> getApartment(Pageable pageable){
         log.info("In method get all apartments");
-        return apartmentRepository.findAll().stream().map(apartmentMapper::toApartmentResponse).toList();
+        return apartmentRepository.findAll(pageable).stream().map(apartmentMapper::toApartmentResponse).toList();
     }
 
     public Long getTotalApartment() {
@@ -62,6 +62,10 @@ public class ApartmentService {
 
     public List<ApartmentResponse> searchApartments(String unit_number, String floor, String area, String status, String num_rooms) {
         return apartmentRepository.findApartments(unit_number, floor, area, status, num_rooms).stream().map(apartmentMapper::toApartmentResponse).toList();
+    }
+
+    public List<String> getAllUnitNumber(){
+        return apartmentRepository.findAllUnitNumbers();
     }
 }
 

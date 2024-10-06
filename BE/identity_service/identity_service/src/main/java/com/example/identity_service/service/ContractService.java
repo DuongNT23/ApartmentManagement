@@ -1,73 +1,113 @@
 package com.example.identity_service.service;
 
 import com.example.identity_service.dto.reponse.BillResponse;
+import com.example.identity_service.dto.reponse.ContractResponse;
 import com.example.identity_service.dto.reponse.ResidentResponse;
-import com.example.identity_service.dto.request.BillCreationRequest;
-import com.example.identity_service.dto.request.BillUpdateRequest;
+import com.example.identity_service.dto.request.ContractCreationRequest;
+import com.example.identity_service.dto.request.ContractUpdateRequest;
 import com.example.identity_service.dto.request.ResidentCreationRequest;
 import com.example.identity_service.dto.request.ResidentUpdateRequest;
 import com.example.identity_service.entity.Apartment;
-import com.example.identity_service.entity.Billing;
+import com.example.identity_service.entity.Contract;
 import com.example.identity_service.entity.Resident;
-import com.example.identity_service.enums.BillType;
+import com.example.identity_service.entity.User;
+import com.example.identity_service.enums.ContractStatus;
 import com.example.identity_service.enums.PaymentStatus;
 import com.example.identity_service.enums.ResidentStatus;
 import com.example.identity_service.exception.AppException;
 import com.example.identity_service.exception.ErrorCode;
-import com.example.identity_service.mapper.BillMapper;
+import com.example.identity_service.mapper.ContractMapper;
 import com.example.identity_service.mapper.ResidentMapper;
 import com.example.identity_service.repository.ApartmentRepository;
-import com.example.identity_service.repository.BillRepository;
+import com.example.identity_service.repository.ContractRepository;
 import com.example.identity_service.repository.ResidentRepository;
+import com.example.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class ResidentService {
-    ResidentRepository residentRepository;
-    ResidentMapper residentMapper;
+public class ContractService {
+    UserRepository userRepository;
+    ContractRepository contractRepository;
+    ContractMapper contractMapper;
     ApartmentRepository apartmentRepository;
+    ResidentRepository residentRepository;
 
-    public ResidentResponse createRequest(ResidentCreationRequest request) {
+    public ContractResponse createRequest(ContractCreationRequest request) {
         log.info("Service: Create resident");
 
-        Resident resident = residentMapper.toResident(request);
+        Contract contract = contractMapper.toContract(request);
 
-        return residentMapper.toResidentResponse(residentRepository.save(resident));
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        contract.setUser(user);
+
+        Apartment apartment = apartmentRepository.findById(request.getApartmentId()).orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_EXISTED));
+        contract.setApartment(apartment);
+
+        Resident resident = residentRepository.findById(request.getResidentId()).orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_EXISTED));
+        contract.setResident(resident);
+
+        return contractMapper.toContractResponse(contractRepository.save(contract));
     }
 
-    public List<ResidentResponse> getAllResidents(Pageable pageable) {
-        log.info("Service: get all residents");
-        return residentRepository.findAll(pageable).stream().map(residentMapper::toResidentResponse).toList();
+    public List<ContractResponse> getAllContracts(Pageable pageable) {
+        log.info("Service: get all contracts");
+        return contractRepository.findAll(pageable).stream().map(contractMapper::toContractResponse).toList();
     }
 
-    public Long getTotalResident() {
-        return residentRepository.count();
+    public Long getTotalContract() {
+        return contractRepository.count();
     }
 
-    public ResidentResponse updateResident(String residentId, ResidentUpdateRequest request) {
-        Resident resident = residentRepository.findById(residentId).orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_EXISTED));
+    public ContractResponse updateContract(String contractId, ContractUpdateRequest request) {
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
 
-        residentMapper.updateResident( resident ,request);
-        return residentMapper.toResidentResponse(residentRepository.save(resident));
+        contractMapper.updateContract( contract ,request);
+
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        contract.setUser(user);
+
+        Apartment apartment = apartmentRepository.findById(request.getApartmentId()).orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_EXISTED));
+        contract.setApartment(apartment);
+
+        Resident resident = residentRepository.findById(request.getResidentId()).orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_EXISTED));
+        contract.setResident(resident);
+
+        return contractMapper.toContractResponse(contractRepository.save(contract));
     }
 
-    public String deleteResident(String residentId) {
-        Resident resident = residentRepository.findById(residentId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
-        resident.setStatus(ResidentStatus.former);
-        residentRepository.save(resident);
+    public String deleteContract(String contractId) {
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
+        contract.setContractStatus(ContractStatus.terminated);
+        contractRepository.save(contract);
         return "Detele successfully";
+    }
+
+    public ContractResponse getContractById(String contractId) {
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
+        return contractMapper.toContractResponse(contract);
+    }
+
+//    public List<ContractResponse> getContractByApartment(String apartmentId) {
+//        return contractRepository.findByApartmentApartmentId(apartmentId).stream().map(contractMapper::toContractResponse).toList();
+//    }
+
+    public ContractResponse getContractByResident(String residentId) {
+        Contract contract = contractRepository.findByResidentResidentId(residentId);
+        return contractMapper.toContractResponse(contract);
+    }
+
+    public String getApartmentByUser(String userId) {
+        return contractRepository.findApartmentByUser(userId);
     }
 }
 

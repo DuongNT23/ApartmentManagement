@@ -11,12 +11,14 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ResidentCreationRequest {
+public class ResidentUpdateRequest {
     String name;
     String email;
     String phone;
     String idCard;
-    Integer birthYear;
-    String gender;
-    ResidentStatus status = ResidentStatus.current;
+    LocalDate dob;
+    Boolean gender;
+    ResidentStatus status;
+    String apartmentUnitNum;
+    String username;
 }

@@ -1,29 +1,40 @@
 package com.example.identity_service.repository;
 
 import com.example.identity_service.entity.Apartment;
-import com.example.identity_service.entity.User;
+import com.example.identity_service.entity.Billing;
+import com.example.identity_service.enums.BillType;
+import com.example.identity_service.enums.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface ApartmentRepository extends JpaRepository<Apartment, String> { //entity và kiểu id
-    boolean existsByUnitNumber(String unitNumber);
+public interface BillRepository extends JpaRepository<Billing, String> { //entity và kiểu id
+    List<Billing> findByApartmentApartmentIdAndPaymentStatus(String apartmentId, PaymentStatus paymentStatus);
 
-    @Query(value = "SELECT a.* FROM `apartments` a WHERE " +
-            "(:unit_number IS NULL OR a.unit_number LIKE CONCAT('%',:unit_number,'%')) AND " +
-            "(:floor IS NULL OR a.floor LIKE CONCAT('%',:floor,'%')) AND " +
-            "(:area IS NULL OR a.area LIKE CONCAT('%',:area,'%')) AND " +
-            "(:status IS NULL OR a.status LIKE CONCAT('%',:status,'%')) AND " +
-            "(:num_rooms IS NULL OR a.num_rooms LIKE CONCAT('%',:num_rooms,'%'))", nativeQuery = true)
-    List<Apartment> findApartments(@Param("unit_number") String unit_number,
-                         @Param("floor") String floor,
-                         @Param("area") String area,
-                         @Param("status") String status,
-                         @Param("num_rooms") String num_rooms);
+    @Query("SELECT b FROM Billing b WHERE b.apartment.unitNumber = :apartmentId " +
+            "AND b.billType = :billType " +
+            "AND FUNCTION('MONTH', b.dueDate) = :month " +
+            "AND FUNCTION('YEAR', b.dueDate) = :year")
+    List<Billing> findBill(
+            @Param("apartmentId") String apartmentId,
+            @Param("billType") BillType billType,
+            @Param("month") int month,
+            @Param("year") int year);
+
+    @Query("SELECT b FROM Billing b WHERE " +
+            "(:unitNumber IS NULL OR b.apartment.unitNumber LIKE %:unitNumber%) " +
+            "AND (:billType IS NULL OR b.billType = :billType) " +
+            "AND (:dueDate IS NULL OR b.dueDate = :dueDate) " +
+            "AND (:paymentStatus IS NULL OR b.paymentStatus = :paymentStatus) " +
+            "AND b.isDelete = false")
+    List<Billing> searchBills(@Param("unitNumber") String unitNumber,
+                              @Param("billType") BillType billType,
+                              @Param("dueDate") LocalDate dueDate,
+                              @Param("paymentStatus") PaymentStatus paymentStatus);
 
 }

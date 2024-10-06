@@ -97,4 +97,11 @@ public class UserController {
                 .result(userService.searchUsers(username, email, phone, status, role))
                 .build();
     }
+
+    @GetMapping("/username")
+    public ApiResponse<List<String>> getAllUsername() {
+        return ApiResponse.<List<String>>builder()
+                .result(userService.getAllUsername())
+                .build();
+    }
 }
