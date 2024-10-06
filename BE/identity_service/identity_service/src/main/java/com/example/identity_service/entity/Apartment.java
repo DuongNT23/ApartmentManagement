@@ -1,6 +1,7 @@
 package com.example.identity_service.entity;
 
 import com.example.identity_service.enums.ApartmentStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Apartments")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Apartment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

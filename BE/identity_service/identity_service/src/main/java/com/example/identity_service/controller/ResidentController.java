@@ -1,8 +1,12 @@
 package com.example.identity_service.controller;
 
 import com.example.identity_service.dto.reponse.BillResponse;
+import com.example.identity_service.dto.reponse.ContractResponse;
+import com.example.identity_service.dto.reponse.ResidentResponse;
 import com.example.identity_service.dto.request.*;
+import com.example.identity_service.enums.ResidentStatus;
 import com.example.identity_service.service.BillService;
+import com.example.identity_service.service.ResidentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,71 +21,75 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:8081/")
 @RestController
-@RequestMapping("/billings")
+@RequestMapping("/residents")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BillController {
-    BillService billService;
+public class ResidentController {
+    ResidentService residentService;
 
-    @PostMapping()
-    ApiResponse<BillResponse> createBill(@RequestBody @Valid BillCreationRequest request){
-        log.info("Controller: Create bill");
-        return ApiResponse.<BillResponse>builder()
-                .result(billService.createRequest(request))
+    @PostMapping
+    ApiResponse<ResidentResponse> createResident(@RequestBody @Valid ResidentCreationRequest request){
+        log.info("Controller: Create resident");
+        return ApiResponse.<ResidentResponse>builder()
+                .result(residentService.createRequest(request))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<BillResponse>> getBills(@RequestParam(defaultValue = "0") int page,
+    ApiResponse<List<ResidentResponse>> getResidents(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size ){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         Pageable pageable = PageRequest.of(page, size);
 
         log.info("Username: {}" , authentication.getName());
 
-        return ApiResponse.<List<BillResponse> >builder()
-                .result(billService.getAllBills(pageable))
+        return ApiResponse.<List<ResidentResponse> >builder()
+                .result(residentService.getAllResidents(pageable))
                 .build();
     }
 
     @GetMapping("/total")
-    ApiResponse<Long> getTotalBill( ){
+    ApiResponse<Long> getTotalResident( ){
         return ApiResponse.<Long>builder()
-                .result(billService.getTotalBill()).build();
+                .result(residentService.getTotalResident()).build();
     }
 
-    @PutMapping("/{billingId}")
-    ApiResponse<BillResponse> updateBill(@PathVariable String billingId, @RequestBody BillUpdateRequest request){
-        return ApiResponse.<BillResponse>builder()
-                .result(billService.updateBill(billingId, request))
+    @PutMapping("/{residentId}")
+    ApiResponse<ResidentResponse> updateResident(@PathVariable String residentId, @RequestBody ResidentUpdateRequest request){
+        return ApiResponse.<ResidentResponse>builder()
+                .result(residentService.updateResident(residentId, request))
                 .build();
     }
 
-    @GetMapping("/{apartmentId}")
-    ApiResponse<List<BillResponse>> getBillByApartmentId(@PathVariable String apartmentId){
-        return ApiResponse.<List<BillResponse>>builder()
-                .result(billService.getBillByApartmentId(apartmentId))
-                .build();
-    }
-
-    @DeleteMapping ("/{billingId}")
-    ApiResponse<String> deleteBill(@PathVariable String billingId){
+    @DeleteMapping("/{residentId}")
+    ApiResponse<String> deleteResident(@PathVariable String residentId){
         return ApiResponse.<String>builder()
-                .result(billService.deleteBill(billingId))
+                .result(residentService.deleteResident(residentId))
                 .build();
     }
 
-//    @GetMapping("/search")
-//    public ApiResponse<List<BillResponse>> searchApartments(
-//            @RequestParam(required = false) String unitNumber,
-//            @RequestParam(required = false) String floor,
-//            @RequestParam(required = false) String area,
-//            @RequestParam(required = false) String status,
-//            @RequestParam(required = false) String numRoom) {
-//        return ApiResponse.<List<BillResponse>>builder()
-//                .result(billService.searchApartments(unitNumber, floor, area, status, numRoom))
-//                .build();
-//    }
+    @GetMapping("/{residentId}")
+    ApiResponse<ResidentResponse> getResidentsById(@PathVariable String residentId){
+        return ApiResponse.<ResidentResponse>builder()
+                .result(residentService.getResidentById(residentId))
+                .build();
+    }
+
+    @GetMapping("getResidentByApartment/{apartmentId}")
+    ApiResponse<List<ResidentResponse> > getResidentByApartment(@PathVariable String apartmentId){
+        return ApiResponse.<List<ResidentResponse>>builder()
+                .result(residentService.getResidentByApartment(apartmentId))
+                .build();
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<ResidentResponse>> searchResidents(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) ResidentStatus status) {
+        return ApiResponse.<List<ResidentResponse>>builder()
+                .result(residentService.searchResidents(name, status))
+                .build();
+    }
 
 }

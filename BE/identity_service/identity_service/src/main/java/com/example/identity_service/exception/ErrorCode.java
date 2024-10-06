@@ -20,9 +20,14 @@ public enum ErrorCode {
     EMAIL_EXISTED (1010, "Username existed", HttpStatus.BAD_REQUEST ),
     PHONE_EXISTED (1011, "Username existed", HttpStatus.BAD_REQUEST ),
     OLD_PASSWORD_INVALID (1012, "Your current password is invalid", HttpStatus.BAD_REQUEST),
-    UNIT_NUMBER_EXISTED (1011, "Unit number existed", HttpStatus.BAD_REQUEST ),
-    APARTMENT_NOT_EXISTED (1011, "Apartment not existed", HttpStatus.BAD_REQUEST ),
-    ;
+    UNIT_NUMBER_EXISTED (1013, "Unit number existed", HttpStatus.BAD_REQUEST ),
+    APARTMENT_NOT_EXISTED (1014, "Apartment not existed", HttpStatus.BAD_REQUEST ),
+    DUE_DATE_VALID(1015, "Due date must be greater than created date", HttpStatus.BAD_REQUEST ),
+    BILL_DUPLICATED(1016, "This type of bill already existed for this aparment in this month" , HttpStatus.BAD_REQUEST),
+    BILL_NOT_EXISTED(1017, "Bill not existed" , HttpStatus.BAD_REQUEST),
+    RESIDENT_NOT_EXISTED(1018, "Resident not existed", HttpStatus.BAD_REQUEST),
+    CONTRACT_NOT_EXISTED(1019, "Contract not existed", HttpStatus.BAD_REQUEST);
+
     private int code;
     private String messgae;
     private HttpStatusCode statusCode;

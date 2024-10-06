@@ -77,4 +77,11 @@ public class ApartmentController {
                 .build();
     }
 
+    @GetMapping("/unitNumber")
+    public ApiResponse<List<String>> getAllUnitNumber() {
+        return ApiResponse.<List<String>>builder()
+                .result(apartmentService.getAllUnitNumber())
+                .build();
+    }
+
 }

@@ -1,17 +1,19 @@
 package com.example.identity_service.service;
 
 import com.example.identity_service.dto.reponse.BillResponse;
-import com.example.identity_service.dto.request.BillCreationRequest;
-import com.example.identity_service.dto.request.BillUpdateRequest;
-import com.example.identity_service.entity.Apartment;
-import com.example.identity_service.entity.Billing;
+import com.example.identity_service.dto.reponse.ContractResponse;
+import com.example.identity_service.dto.reponse.ResidentResponse;
+import com.example.identity_service.dto.request.*;
+import com.example.identity_service.entity.*;
 import com.example.identity_service.enums.BillType;
+import com.example.identity_service.enums.ContractStatus;
 import com.example.identity_service.enums.PaymentStatus;
+import com.example.identity_service.enums.ResidentStatus;
 import com.example.identity_service.exception.AppException;
 import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.mapper.BillMapper;
-import com.example.identity_service.repository.ApartmentRepository;
-import com.example.identity_service.repository.BillRepository;
+import com.example.identity_service.mapper.ResidentMapper;
+import com.example.identity_service.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,73 +29,68 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BillService {
-    BillRepository billRepository;
-    BillMapper billMapper;
+public class ResidentService {
+    UserRepository userRepository;
+    ResidentRepository residentRepository;
+    ResidentMapper residentMapper;
     ApartmentRepository apartmentRepository;
+    ContractRepository contractRepository;
 
-    public BillResponse createRequest(BillCreationRequest request) {
-        log.info("Service: Create bill");
+    public ResidentResponse createRequest(ResidentCreationRequest request) {
+        log.info("Service: Create resident");
 
-        if(request.getCreatedDate() == null){
-            LocalDate today = LocalDate.now();
-            request.setCreatedDate(today);
-        }
+        Resident resident = residentMapper.toResident(request);
+        resident = residentRepository.save(resident);
 
-        if(request.getDueDate().isBefore( request.getCreatedDate())){
-            throw new AppException(ErrorCode.DUE_DATE_VALID);
-        }
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Apartment apartment = apartmentRepository.findByunitNumber(request.getApartmentUnitNum());
+        Contract contract = new Contract( "",user, apartment, resident, LocalDate.now(), null, ContractStatus.active, false);
+        contractRepository.save(contract);
 
-        if(existingBill(request.getBillType(), request.getDueDate(), request.getApartmentId())){
-            throw new AppException(ErrorCode.BILL_DUPLICATED);
-        }
-
-
-        Billing billing = billMapper.toBill(request);
-
-        Apartment apartment = apartmentRepository.findByunitNumber(request.getApartmentId());
-        billing.setApartment(apartment);
-
-        return billMapper.toBillResponse(billRepository.save(billing));
+        return residentMapper.toResidentResponse(resident);
     }
 
-    private boolean existingBill(BillType billType, LocalDate dueDate, String apartmentId) {
-        int month = dueDate.getMonthValue();
-        int year = dueDate.getYear();
-
-        List<Billing> bill =  billRepository.findBill(apartmentId, billType, month, year);
-        if(CollectionUtils.isEmpty(bill)){
-            return false;
-        }
-        return true;
+    public List<ResidentResponse> getAllResidents(Pageable pageable) {
+        log.info("Service: get all residents");
+        return residentRepository.findAll(pageable).stream().map(residentMapper::toResidentResponse).toList();
     }
 
-    public List<BillResponse> getAllBills(Pageable pageable) {
-        log.info("Service: get all bills");
-        return billRepository.findAll(pageable).stream().map(billMapper::toBillResponse).toList();
+    public Long getTotalResident() {
+        return residentRepository.count();
     }
 
-    public Long getTotalBill() {
-        return billRepository.count();
+    public ResidentResponse updateResident(String residentId, ResidentUpdateRequest request) {
+        Resident resident = residentRepository.findById(residentId).orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_EXISTED));
+        residentMapper.updateResident(resident ,request);
+
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Apartment apartment = apartmentRepository.findByunitNumber(request.getApartmentUnitNum());
+        Contract contract = contractRepository.findByResidentResidentId(residentId);
+        contract.setApartment(apartment);
+        contract.setUser(user);
+        contractRepository.save(contract);
+
+        return residentMapper.toResidentResponse(residentRepository.save(resident));
     }
 
-    public BillResponse updateBill(String billingId, BillUpdateRequest request) {
-        Billing billing = billRepository.findById(billingId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
-
-        billMapper.updateBill( billing ,request);
-        return billMapper.toBillResponse(billRepository.save(billing));
-    }
-
-    public List<BillResponse> getBillByApartmentId(String apartmentId) {
-        return billRepository.findByApartmentApartmentIdAndPaymentStatus(apartmentId, PaymentStatus.unpaid).stream().map(billMapper::toBillResponse).toList();
-    }
-
-    public String deleteBill(String billingId) {
-        var test = billRepository.findById(billingId);
-        Billing billing = billRepository.findById(billingId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
-        billing.setDelete(true);
-        billRepository.save(billing);
+    public String deleteResident(String residentId) {
+        Resident resident = residentRepository.findById(residentId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
+        resident.setStatus(ResidentStatus.former);
+        residentRepository.save(resident);
         return "Detele successfully";
+    }
+
+    public ResidentResponse getResidentById(String residentId) {
+        Resident resident = residentRepository.findById(residentId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
+        return residentMapper.toResidentResponse(resident);
+    }
+
+    public List<ResidentResponse> getResidentByApartment(String apartmentId) {
+        return contractRepository.findByApartmentApartmentId(apartmentId).stream().map(residentMapper::toResidentResponse).toList();
+    }
+
+    public List<ResidentResponse> searchResidents(String name, ResidentStatus status) {
+        return residentRepository.searchResidents(name, status).stream().map(residentMapper::toResidentResponse).toList();
     }
 }
 

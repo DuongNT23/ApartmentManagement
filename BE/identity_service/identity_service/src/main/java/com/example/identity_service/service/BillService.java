@@ -1,67 +1,116 @@
 package com.example.identity_service.service;
 
-import com.example.identity_service.dto.reponse.ApartmentResponse;
-import com.example.identity_service.dto.request.ApartmentCreationRequest;
-import com.example.identity_service.dto.request.ApartmentUpdateRequest;
+import com.example.identity_service.dto.reponse.BillResponse;
+import com.example.identity_service.dto.reponse.ResidentResponse;
+import com.example.identity_service.dto.request.BillCreationRequest;
+import com.example.identity_service.dto.request.BillUpdateRequest;
 import com.example.identity_service.entity.Apartment;
+import com.example.identity_service.entity.Billing;
+import com.example.identity_service.entity.Resident;
+import com.example.identity_service.enums.BillType;
+import com.example.identity_service.enums.PaymentStatus;
 import com.example.identity_service.exception.AppException;
 import com.example.identity_service.exception.ErrorCode;
-import com.example.identity_service.mapper.ApartmentMapper;
+import com.example.identity_service.mapper.BillMapper;
 import com.example.identity_service.repository.ApartmentRepository;
-import com.example.identity_service.repository.UserRepository;
+import com.example.identity_service.repository.BillRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class ApartmentService {
-    UserRepository userRepository;
+public class BillService {
+    BillRepository billRepository;
+    BillMapper billMapper;
     ApartmentRepository apartmentRepository;
-    ApartmentMapper apartmentMapper;
 
-    public ApartmentResponse createRequest(ApartmentCreationRequest request){
-        log.info("Service: Create apartment");
+    public BillResponse createRequest(BillCreationRequest request) {
+        log.info("Service: Create bill");
 
-            if(apartmentRepository.existsByUnitNumber(request.getUnitNumber()) ){
-                throw new AppException(ErrorCode.UNIT_NUMBER_EXISTED);
-            }
+        if(request.getCreatedDate() == null){
+            LocalDate today = LocalDate.now();
+            request.setCreatedDate(today);
+        }
 
-            Apartment apartment = apartmentMapper.toApartment(request);
-            return apartmentMapper.toApartmentResponse(apartmentRepository.save(apartment));
+        if(request.getDueDate().isBefore( request.getCreatedDate())){
+            throw new AppException(ErrorCode.DUE_DATE_VALID);
+        }
+
+        if(existingBill(request.getBillType(), request.getDueDate(), request.getApartmentId())){
+            throw new AppException(ErrorCode.BILL_DUPLICATED);
+        }
+
+
+        Billing billing = billMapper.toBill(request);
+
+        Apartment apartment = apartmentRepository.findByunitNumber(request.getApartmentId());
+        billing.setApartment(apartment);
+
+        return billMapper.toBillResponse(billRepository.save(billing));
     }
 
-    public List<ApartmentResponse> getApartment(Pageable pageable){
-        log.info("In method get all apartments");
-        return apartmentRepository.findAll().stream().map(apartmentMapper::toApartmentResponse).toList();
+    private boolean existingBill(BillType billType, LocalDate dueDate, String apartmentId) {
+        int month = dueDate.getMonthValue();
+        int year = dueDate.getYear();
+
+        List<Billing> bill =  billRepository.findBill(apartmentId, billType, month, year);
+        if(CollectionUtils.isEmpty(bill)){
+            return false;
+        }
+        return true;
     }
 
-    public Long getTotalApartment() {
-        return apartmentRepository.count();
+    public List<BillResponse> getAllBills(Pageable pageable) {
+        log.info("Service: get all bills");
+        return billRepository.findAll(pageable).stream().map(billMapper::toBillResponse).toList();
     }
 
-    public ApartmentResponse updateApartment(String aparmentId, ApartmentUpdateRequest request){
-        Apartment apartment = apartmentRepository.findById(aparmentId).orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_EXISTED));
-
-        apartmentMapper.updateApartment( apartment ,request);
-        return apartmentMapper.toApartmentResponse(apartmentRepository.save(apartment));
+    public Long getTotalBill() {
+        return billRepository.count();
     }
 
-    public ApartmentResponse getApartmentById(String aparmentId){
-        log.info("Service: Get apartment by Id");
-        Apartment apartment = apartmentRepository.findById(aparmentId).orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_EXISTED));
-        return apartmentMapper.toApartmentResponse(apartment);
+    public BillResponse updateBill(String billingId, BillUpdateRequest request) {
+        Billing billing = billRepository.findById(billingId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
+        billMapper.updateBill(billing ,request);
+
+        Apartment apartment = apartmentRepository.findByunitNumber(request.getApartmentUnitNum());
+        billing.setApartment(apartment);
+
+        return billMapper.toBillResponse(billRepository.save(billing));
     }
 
-    public List<ApartmentResponse> searchApartments(String unit_number, String floor, String area, String status, String num_rooms) {
-        return apartmentRepository.findApartments(unit_number, floor, area, status, num_rooms).stream().map(apartmentMapper::toApartmentResponse).toList();
+    public List<BillResponse> getBillByApartmentId(String apartmentId) {
+        return billRepository.findByApartmentApartmentIdAndPaymentStatus(apartmentId, PaymentStatus.unpaid).stream().map(billMapper::toBillResponse).toList();
+    }
+
+    public String deleteBill(String billingId) {
+        Billing billing = billRepository.findById(billingId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
+        billing.setDelete(true);
+        billRepository.save(billing);
+        return "Detele successfully";
+    }
+
+    public BillResponse getBillById(String billingId) {
+        Billing billing = billRepository.findById(billingId).orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_EXISTED));
+        return billMapper.toBillResponse(billing);
+    }
+
+    public List<BillResponse> searchBills(String unitNumber, BillType billType, LocalDate dueDate, PaymentStatus paymentStatus) {
+        log.info("Searching with: unitNumber=" + unitNumber +
+                ", billType=" + billType +
+                ", dueDate=" + dueDate +
+                ", paymentStatus=" + paymentStatus);
+        return billRepository.searchBills(unitNumber, billType, dueDate, paymentStatus).stream().map(billMapper :: toBillResponse).toList();
     }
 }
 

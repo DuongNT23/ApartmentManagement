@@ -26,4 +26,8 @@ public interface ApartmentRepository extends JpaRepository<Apartment, String> { 
                          @Param("status") String status,
                          @Param("num_rooms") String num_rooms);
 
+    Apartment findByunitNumber(String unitNumber);
+
+    @Query("SELECT a.unitNumber FROM Apartment a")
+    List<String> findAllUnitNumbers();
 }

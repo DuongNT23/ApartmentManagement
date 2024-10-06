@@ -1,9 +1,10 @@
 package com.example.identity_service.controller;
 
 import com.example.identity_service.dto.reponse.BillResponse;
+import com.example.identity_service.dto.reponse.ContractResponse;
 import com.example.identity_service.dto.reponse.ResidentResponse;
 import com.example.identity_service.dto.request.*;
-import com.example.identity_service.service.BillService;
+import com.example.identity_service.service.ContractService;
 import com.example.identity_service.service.ResidentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -19,51 +20,66 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:8081/")
 @RestController
-@RequestMapping("/residents")
+@RequestMapping("/contracts")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class ResidentController {
-    ResidentService residentService;
+public class ContractController {
+    ContractService contractService;
 
     @PostMapping()
-    ApiResponse<ResidentResponse> createResident(@RequestBody @Valid ResidentCreationRequest request){
-        log.info("Controller: Create resident");
-        return ApiResponse.<ResidentResponse>builder()
-                .result(residentService.createRequest(request))
+    ApiResponse<ContractResponse> createContract(@RequestBody @Valid ContractCreationRequest request){
+        log.info("Controller: Create contract");
+        return ApiResponse.<ContractResponse>builder()
+                .result(contractService.createRequest(request))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<ResidentResponse>> getBills(@RequestParam(defaultValue = "0") int page,
+    ApiResponse<List<ContractResponse>> getBills(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size ){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         Pageable pageable = PageRequest.of(page, size);
 
         log.info("Username: {}" , authentication.getName());
 
-        return ApiResponse.<List<ResidentResponse> >builder()
-                .result(residentService.getAllResidents(pageable))
+        return ApiResponse.<List<ContractResponse> >builder()
+                .result(contractService.getAllContracts(pageable))
                 .build();
     }
 
     @GetMapping("/total")
     ApiResponse<Long> getTotalBill( ){
         return ApiResponse.<Long>builder()
-                .result(residentService.getTotalResident()).build();
+                .result(contractService.getTotalContract()).build();
     }
 
-    @PutMapping("/{residentId}")
-    ApiResponse<ResidentResponse> updateResident(@PathVariable String residentId, @RequestBody ResidentUpdateRequest request){
-        return ApiResponse.<ResidentResponse>builder()
-                .result(residentService.updateResident(residentId, request))
+    @PutMapping("/{contractId}")
+    ApiResponse<ContractResponse> updateContract(@PathVariable String contractId, @RequestBody ContractUpdateRequest request){
+        return ApiResponse.<ContractResponse>builder()
+                .result(contractService.updateContract(contractId, request))
                 .build();
     }
 
-    @DeleteMapping ("/{residentId}")
-    ApiResponse<String> deleteBill(@PathVariable String residentId){
+    @DeleteMapping ("/{contractId}")
+    ApiResponse<String> deleteContract(@PathVariable String contractId){
         return ApiResponse.<String>builder()
-                .result(residentService.deleteResident(residentId))
+                .result(contractService.deleteContract(contractId))
+                .build();
+    }
+
+    @GetMapping("getApartmentByUser/{userId}")
+    ApiResponse<String> getApartmentByUser(@PathVariable String userId){
+        return ApiResponse.<String>builder()
+                .result(contractService.getApartmentByUser(userId))
+                .build();
+    }
+
+    @GetMapping("getContractByResident/{residentId}")
+    ApiResponse<ContractResponse> getContractByResidentId(@PathVariable String residentId){
+        var test = contractService.getContractByResident(residentId);
+        return ApiResponse.<ContractResponse>builder()
+                .result(contractService.getContractByResident(residentId))
                 .build();
     }
 

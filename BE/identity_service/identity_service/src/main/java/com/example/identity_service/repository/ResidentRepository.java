@@ -1,27 +1,23 @@
 package com.example.identity_service.repository;
 
-import com.example.identity_service.entity.Apartment;
 import com.example.identity_service.entity.Billing;
+import com.example.identity_service.entity.Resident;
 import com.example.identity_service.enums.BillType;
 import com.example.identity_service.enums.PaymentStatus;
+import com.example.identity_service.enums.ResidentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
-public interface BillRepository extends JpaRepository<Billing, String> { //entity và kiểu id
-    List<Billing> findByApartmentApartmentIdAndPaymentStatus(String apartmentId, PaymentStatus paymentStatus);
-
-    @Query("SELECT b FROM Billing b WHERE b.apartment.unitNumber = :apartmentId " +
-            "AND b.billType = :billType " +
-            "AND FUNCTION('MONTH', b.dueDate) = :month " +
-            "AND FUNCTION('YEAR', b.dueDate) = :year")
-    List<Billing> findBill(
-            @Param("apartmentId") String apartmentId,
-            @Param("billType") BillType billType,
-            @Param("month") int month,
-            @Param("year") int year);
+public interface ResidentRepository extends JpaRepository<Resident, String> {
+    @Query("SELECT r FROM Resident r JOIN Contract c ON r.residentId = c.resident.residentId " +
+            "AND (:name IS NULL OR LOWER(r.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:status IS NULL OR r.status = :status)")
+    List<Resident> searchResidents(@Param("name") String name,
+                                   @Param("status") ResidentStatus status);
 }
