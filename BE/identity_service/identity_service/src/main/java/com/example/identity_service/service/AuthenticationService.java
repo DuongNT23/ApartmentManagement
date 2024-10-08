@@ -1,6 +1,5 @@
 package com.example.identity_service.service;
 
-import com.example.identity_service.configuration.CustomJwtDecoder;
 import com.example.identity_service.dto.reponse.AuthenticationResponse;
 import com.example.identity_service.dto.reponse.IntrospectResponse;
 import com.example.identity_service.dto.request.AuthenticationRequest;
@@ -23,20 +22,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.UUID;
 
 @Service
@@ -61,6 +55,10 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request){
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if(user.getStatus().toString().equals("INACTIVE")){
+            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
+        }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());

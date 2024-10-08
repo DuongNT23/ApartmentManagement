@@ -90,11 +90,10 @@ public class UserController {
     public ApiResponse<List<UserResponse>> searchUsers(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phone,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String role) {
         return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.searchUsers(username, email, phone, status, role))
+                .result(userService.searchUsers(username, email, status, role))
                 .build();
     }
 
@@ -102,13 +101,6 @@ public class UserController {
     public ApiResponse<List<String>> getAllUsername() {
         return ApiResponse.<List<String>>builder()
                 .result(userService.getAllUsername())
-                .build();
-    }
-
-    @GetMapping("getUser/{{userId}}")
-    ApiResponse<UserResponse> getUserById(String userId){
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.getUserById(userId))
                 .build();
     }
 }

@@ -17,12 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -37,7 +34,7 @@ public class UserService {
     RoleRepository roleRepository;
 
     public UserResponse createRequest(UserCreationRequest request){
-        log.info("Service: Create user");
+        log.info("Service: Create user: " + request);
 
             if(userRepository.existsByUsername(request.getUsername()) ){
                 throw new AppException(ErrorCode.USER_EXISTED);
@@ -53,7 +50,7 @@ public class UserService {
                 roleRepository.save(role);
             }
             request.setRole(role);
-            request.setStatus(Status.ACTIVE);
+            request.setStatus(Status.INACTIVE);
 
             User user = userMapper.toUser(request);
 
@@ -89,7 +86,6 @@ public class UserService {
         user.setDob(request.getDob());
         user.setGender(request.getGender());
         user.setPhone(request.getPhone());
-//        (request)
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -110,7 +106,7 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public List<UserResponse> searchUsers(String username, String email, String phone, String status, String role) {
+    public List<UserResponse> searchUsers(String username, String email, String status, String role) {
         int roleId;
         if(!role.isEmpty()){
             roleId = Integer.parseInt(role);
@@ -129,8 +125,5 @@ public class UserService {
         return userRepository.findAllUsername();
     }
 
-    public UserResponse getUserById(String userId) {
-        return userMapper.toUserResponse(userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
-    }
 }
 

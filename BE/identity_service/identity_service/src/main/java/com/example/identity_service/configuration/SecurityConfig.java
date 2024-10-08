@@ -26,7 +26,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINT = {"/users", "/auth/token",
-            "/auth/introspect", "/auth/logout", "/auth/refresh"};
+            "/auth/introspect", "/auth/logout", "/auth/refresh", "emails/sendVerifyEmail/{email}", "emails/verifyEmail/{token}"};
     private final String[] ADMIN_ENDPOINT = {"/users"};
 
     @NonFinal
