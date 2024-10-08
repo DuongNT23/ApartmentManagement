@@ -48,6 +48,10 @@ public class ApartmentService {
     }
 
     public ApartmentResponse updateApartment(String aparmentId, ApartmentUpdateRequest request){
+        if(request.getStatus().toString().equals("vacant") || request.getStatus().toString().equals("under_maintenance")){
+            //update resident thành temporary_vắng mặt
+        }
+
         Apartment apartment = apartmentRepository.findById(aparmentId).orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_EXISTED));
 
         apartmentMapper.updateApartment( apartment ,request);

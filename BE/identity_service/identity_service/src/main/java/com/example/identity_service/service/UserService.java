@@ -37,7 +37,7 @@ public class UserService {
     RoleRepository roleRepository;
 
     public UserResponse createRequest(UserCreationRequest request){
-        log.info("Service: Create user");
+        log.info("Service: Create user: " + request);
 
             if(userRepository.existsByUsername(request.getUsername()) ){
                 throw new AppException(ErrorCode.USER_EXISTED);
@@ -53,7 +53,7 @@ public class UserService {
                 roleRepository.save(role);
             }
             request.setRole(role);
-            request.setStatus(Status.ACTIVE);
+            request.setStatus(Status.INACTIVE);
 
             User user = userMapper.toUser(request);
 
@@ -89,7 +89,6 @@ public class UserService {
         user.setDob(request.getDob());
         user.setGender(request.getGender());
         user.setPhone(request.getPhone());
-//        (request)
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

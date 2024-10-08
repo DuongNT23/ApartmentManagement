@@ -17,7 +17,7 @@ public enum ErrorCode {
     UNAUTHENTICATED (1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED (1008, "You do not have permission", HttpStatus.FORBIDDEN),
     DOB_INVALID (1009, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
-    EMAIL_EXISTED (1010, "Username existed", HttpStatus.BAD_REQUEST ),
+    EMAIL_EXISTED (1010, "Email existed", HttpStatus.BAD_REQUEST ),
     PHONE_EXISTED (1011, "Username existed", HttpStatus.BAD_REQUEST ),
     OLD_PASSWORD_INVALID (1012, "Your current password is invalid", HttpStatus.BAD_REQUEST),
     UNIT_NUMBER_EXISTED (1013, "Unit number existed", HttpStatus.BAD_REQUEST ),
@@ -26,7 +26,8 @@ public enum ErrorCode {
     BILL_DUPLICATED(1016, "This type of bill already existed for this aparment in this month" , HttpStatus.BAD_REQUEST),
     BILL_NOT_EXISTED(1017, "Bill not existed" , HttpStatus.BAD_REQUEST),
     RESIDENT_NOT_EXISTED(1018, "Resident not existed", HttpStatus.BAD_REQUEST),
-    CONTRACT_NOT_EXISTED(1019, "Contract not existed", HttpStatus.BAD_REQUEST);
+    CONTRACT_NOT_EXISTED(1019, "Contract not existed", HttpStatus.BAD_REQUEST),
+    USER_NOT_VERIFIED(1020, "Your email has not been verified. Please verify", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String messgae;

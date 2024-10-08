@@ -104,11 +104,4 @@ public class UserController {
                 .result(userService.getAllUsername())
                 .build();
     }
-
-    @GetMapping("getUser/{{userId}}")
-    ApiResponse<UserResponse> getUserById(String userId){
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.getUserById(userId))
-                .build();
-    }
 }

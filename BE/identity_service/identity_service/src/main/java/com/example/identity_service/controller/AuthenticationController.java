@@ -23,10 +23,9 @@ public class AuthenticationController {
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-        var result = authenticationService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder()
-                .result(result)
-                .build(); //đọc lại
+                .result(authenticationService.authenticate(request))
+                .build();
     }
 
     @PostMapping("/introspect")
@@ -34,7 +33,7 @@ public class AuthenticationController {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
-                .build(); //đọc lại
+                .build();
     }
 
     @PostMapping("/logout")
