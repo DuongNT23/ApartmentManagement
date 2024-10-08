@@ -1,12 +1,13 @@
 package com.example.identity_service.exception;
 
-import lombok.Data;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 @Getter
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ErrorCode {
     USER_EXISTED (1001, "Username existed", HttpStatus.BAD_REQUEST ),
     USER_NOT_EXISTED (1005, "User not existed", HttpStatus.NOT_FOUND),
@@ -29,9 +30,9 @@ public enum ErrorCode {
     CONTRACT_NOT_EXISTED(1019, "Contract not existed", HttpStatus.BAD_REQUEST),
     USER_NOT_VERIFIED(1020, "Your email has not been verified. Please verify", HttpStatus.BAD_REQUEST);
 
-    private int code;
-    private String messgae;
-    private HttpStatusCode statusCode;
+    int code;
+    String messgae;
+    HttpStatusCode statusCode;
 
     ErrorCode(int code, String messgae, HttpStatusCode statusCode){
         this.code = code;

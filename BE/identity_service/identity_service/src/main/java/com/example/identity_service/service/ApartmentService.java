@@ -23,7 +23,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApartmentService {
-    UserRepository userRepository;
     ApartmentRepository apartmentRepository;
     ApartmentMapper apartmentMapper;
 
