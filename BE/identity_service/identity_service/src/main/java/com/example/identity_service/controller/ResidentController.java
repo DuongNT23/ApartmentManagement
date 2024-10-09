@@ -92,4 +92,26 @@ public class ResidentController {
                 .build();
     }
 
+    @GetMapping("/getTotalResidentByApartmentId/{apartmentId}")
+    public ApiResponse<Integer> countResidents(@PathVariable String apartmentId) {
+        return ApiResponse.<Integer>builder()
+                .result(residentService.countResidentsByApartmentId(apartmentId))
+                .build();
+    }
+
+    @PutMapping("/updatersidentStatus/{apartmentId}")
+    public ApiResponse<String> updateResidentStatusByApartmentId(@PathVariable String apartmentId) {
+        int updatedRecords = residentService.updateResidentsToTemporaryAbsent(apartmentId);
+
+        if (updatedRecords > 0) {
+            return ApiResponse.<String>builder()
+                    .result("Residents updated successfully")
+                    .build();
+        } else {
+            return ApiResponse.<String>builder()
+                    .result("No residents found to update")
+                    .build();
+        }
+    }
+
 }

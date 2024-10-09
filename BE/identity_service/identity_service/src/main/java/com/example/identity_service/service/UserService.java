@@ -86,6 +86,7 @@ public class UserService {
         user.setDob(request.getDob());
         user.setGender(request.getGender());
         user.setPhone(request.getPhone());
+        user.setStatus(request.getStatus());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

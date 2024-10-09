@@ -14,6 +14,7 @@ import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.mapper.BillMapper;
 import com.example.identity_service.repository.ApartmentRepository;
 import com.example.identity_service.repository.BillRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -111,6 +113,22 @@ public class BillService {
                 ", dueDate=" + dueDate +
                 ", paymentStatus=" + paymentStatus);
         return billRepository.searchBills(unitNumber, billType, dueDate, paymentStatus).stream().map(billMapper :: toBillResponse).toList();
+    }
+
+    public Long getTotalBillByApartmentId(String apartmentId) {
+        return billRepository.countBillsByApartmentId(apartmentId, PaymentStatus.unpaid);
+    }
+
+    @Transactional
+    public int updateBillsPaymentStatus(String apartmentId) {
+        PaymentStatus newStatus = PaymentStatus.paid;
+        List<PaymentStatus> oldStatuses = Arrays.asList(PaymentStatus.overdue, PaymentStatus.unpaid);
+        int totalUpdated = 0;
+        for (PaymentStatus oldStatus : oldStatuses) {
+            totalUpdated += billRepository.updateBillingStatusByApartmentIdAndOldStatus(apartmentId, newStatus.toString(), oldStatus.toString());
+        }
+
+        return totalUpdated;
     }
 }
 
