@@ -14,6 +14,7 @@ import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.mapper.BillMapper;
 import com.example.identity_service.mapper.ResidentMapper;
 import com.example.identity_service.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -91,6 +92,16 @@ public class ResidentService {
 
     public List<ResidentResponse> searchResidents(String name, ResidentStatus status) {
         return residentRepository.searchResidents(name, status).stream().map(residentMapper::toResidentResponse).toList();
+    }
+
+    public Integer countResidentsByApartmentId(String apartmentId) {
+        List<Resident> residents = contractRepository.findResidentsByApartmentId(apartmentId, ResidentStatus.current);
+        return residents.size();
+    }
+
+    @Transactional
+    public Integer updateResidentsToTemporaryAbsent(String apartmentId) {
+        return residentRepository.updateResidentStatusByApartmentId(apartmentId, ResidentStatus.temporary_absent.toString());
     }
 }
 

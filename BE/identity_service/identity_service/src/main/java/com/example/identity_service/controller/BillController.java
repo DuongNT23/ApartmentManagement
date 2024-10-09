@@ -5,6 +5,8 @@ import com.example.identity_service.dto.reponse.ResidentResponse;
 import com.example.identity_service.dto.request.*;
 import com.example.identity_service.enums.BillType;
 import com.example.identity_service.enums.PaymentStatus;
+import com.example.identity_service.exception.AppException;
+import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.service.BillService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -75,6 +77,25 @@ public class BillController {
         return ApiResponse.<List<BillResponse>>builder()
                 .result(billService.getBillByApartmentId(apartmentId))
                 .build();
+    }
+
+    @GetMapping("getTotalBillByApartmentId/{apartmentId}")
+    ApiResponse<Long> getTotalBillByApartmentId(@PathVariable String apartmentId){
+        return ApiResponse.<Long>builder()
+                .result(billService.getTotalBillByApartmentId(apartmentId))
+                .build();
+    }
+
+    @PutMapping("/updateBillStatus/{apartmentId}")
+    public ApiResponse<String> updateBillingStatus(@PathVariable String apartmentId) {
+        int updatedRecords = billService.updateBillsPaymentStatus(apartmentId);
+
+        if (updatedRecords > 0) {
+            return ApiResponse.<String>builder()
+                    .result("Bills updated successfully").build();
+        } else {
+            throw new AppException(ErrorCode.BILL_NOT_EXISTED);
+        }
     }
 
     @DeleteMapping ("/{billingId}")
